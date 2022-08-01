@@ -11,6 +11,10 @@
 2. Ejecutar
 
 ```
+npm run start:dev
+```
+
+```
 npm install
 ```
 
