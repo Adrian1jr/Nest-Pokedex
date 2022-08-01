@@ -3,9 +3,9 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class Pokemon extends Document {
-  @Prop({ required: true, index: true })
+  @Prop({ unique: true, index: true })
   name: string;
-  @Prop({ required: true, index: true })
+  @Prop({ unique: true, index: true })
   no: number;
 }
 

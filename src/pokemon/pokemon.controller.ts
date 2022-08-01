@@ -17,6 +17,7 @@ export class PokemonController {
 
   @Post()
   create(@Body() createPokemonDto: CreatePokemonDto) {
+    createPokemonDto.name = createPokemonDto.name.toLocaleLowerCase();
     return this.pokemonService.create(createPokemonDto);
   }
 
