@@ -34,22 +34,58 @@ export class PokemonService {
   async findOne(_id: string) {
     let pokemon: Pokemon;
 
+    //Not a number
     if (!isNaN(+_id)) pokemon = await this.pokemonModel.findOne({ no: _id });
 
-    if (isValidObjectId(_id)) pokemon = await this.pokemonModel.findById(_id);
+    //ObjectId
+    if (!pokemon && isValidObjectId(_id))
+      pokemon = await this.pokemonModel.findById(_id);
 
+    //Name
+    if (!pokemon)
+      pokemon = await this.pokemonModel.findOne({
+        name: _id.toLowerCase().trim(),
+      });
+
+    //exist
     if (!pokemon)
       throw new NotFoundException(`Pokemon with id ${_id} not found`);
 
     return pokemon;
   }
 
-  update(id: string, updatePokemonDto: UpdatePokemonDto) {
-    return `This action updates a #${id} pokemon`;
+  async update(_id: string, updatePokemonDto: UpdatePokemonDto) {
+    let pokemon: Pokemon;
+
+    pokemon = await this.findOne(_id);
+
+    if (updatePokemonDto.name)
+      updatePokemonDto.name = updatePokemonDto.name.toLocaleLowerCase();
+
+    try {
+      //Con el new:true regresamos el nuevo valor
+      await pokemon.updateOne(updatePokemonDto);
+
+      return {
+        ok: true,
+        message: `Pokemon ${pokemon.name} updated`,
+        results: {
+          ...pokemon.toJSON(),
+          ...updatePokemonDto,
+        },
+      };
+    } catch (error) {
+      this.handleExceptions(error);
+    }
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} pokemon`;
+  async remove(id: string) {
+    await this.pokemonModel.findByIdAndRemove(id);
+
+    return {
+      ok: true,
+      message: `Pokemon deleted`,
+    };
   }
 
   private handleExceptions(error: any) {
